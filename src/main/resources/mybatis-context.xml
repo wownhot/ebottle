@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>	
+	<!-- db.properties -->
+	<!-- <properties resource="db.properties" /> -->
+
+	
+	<!-- TypeAliases -->  
+	<typeAliases>
+		<typeAlias alias="userVO" type="com.kosmo.project.UserVO"  />
+		<typeAlias alias="pointVO" type="com.kosmo.project.PointVO"  />
+		<typeAlias alias="productVO" type="com.kosmo.project.ProductVO"  />
+		<typeAlias alias="buyVO" type="com.kosmo.project.BuyVO"  />
+		<typeAlias alias="boardVO" type="com.kosmo.project.BoardVO"  />
+		<typeAlias alias="boardreplyVO" type="com.kosmo.project.BoardReplyVO"  />
+		<typeAlias alias="cartVO" type="com.kosmo.project.CartVO"  />
+		<typeAlias alias="giftVO" type="com.kosmo.project.GiftVO"  />
+		<typeAlias type="com.kosmo.project.GradeVO" alias="gradeVO"/>
+		<typeAlias alias="startend" type="com.kosmo.project.StartEnd"  />
+	</typeAliases>
+
+	<!-- DBCP -->
+	<!-- <environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />  MANAGED
+			<dataSource type="POOLED">
+				<property name="driver" value="${driverClassName}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	 -->
+	<!-- mapper --> 
+
+	
+
+</configuration>

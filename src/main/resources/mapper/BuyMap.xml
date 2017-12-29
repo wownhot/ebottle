@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="buyDAO">
+	<insert id="insert" parameterType="buyVO">
+		insert into buy (product_name, product_price,users_seq,product_seq,
+		buy_date,barcode,barcode_img,product_img)
+		values(#{pname},#{price},#{useq},#{pseq},now(),#{barcode},#{barcode_img},#{product_img})
+	</insert>
+
+	<select id="buyselectone" parameterType="buyVO" resultType="buyVO">
+		select * from buy where bseq=#{bseq}
+	</select>
+	
+	<select id="buyselectbarcode" parameterType="buyVO" resultType="buyVO">
+		select * from buy where barcode=#{barcode}
+	</select>
+	
+	<select id="buyselectlist" parameterType="startend" resultType="buyVO">
+	SELECT B.* FROM 
+	(
+	select @ROWNUM:=@ROWNUM + 1 as RR, A.* 
+	from
+	(select *
+	from buy where users_seq=#{users_seq} order by buy_date desc)A, (SELECT @ROWNUM :=0)R
+	)
+	B WHERE RR BETWEEN #{start} and #{end}
+	</select>
+	
+	<select id="buylistcount" parameterType="buyVO" resultType="int">
+		select count(1) cnt from buy where users_seq =#{users_seq}
+	</select>	
+	
+	<update id="buyupdate" parameterType="buyVO">
+   	update buy set used=#{used} where barcode=#{barcode}
+   </update>
+</mapper>
+
+
+  

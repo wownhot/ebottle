@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="boardDAO">
+	<resultMap id="board_map" type="com.kosmo.project.BoardVO">
+		<id column="board_seq" jdbcType="INTEGER" property="bseq"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+		<result column="users_id" jdbcType="VARCHAR" property="userid"/>
+		<result column="contents" jdbcType="VARCHAR" property="contents"/>
+		<result column="reg_date" jdbcType="VARCHAR" property="regDate"/>
+		<result column="origfname" jdbcType="VARCHAR" property="origFname"/>
+		<result column="sysfname" jdbcType="VARCHAR" property="sysFname"/>
+		<result column="hits" jdbcType="INTEGER" property="hits"/>
+	<collection property="rlist" resultMap="board_reply_map" /> 
+	</resultMap>
+	
+	<resultMap id="board_reply_map" type="com.kosmo.project.BoardReplyVO">
+		<id column="board_reply_seq" jdbcType="INTEGER" property="rseq"/>
+		<result column="board_seq" jdbcType="INTEGER" property="bseq"/>
+		<result column="r_reply" jdbcType="VARCHAR" property="reply"/>
+		<result column="r_userid" jdbcType="VARCHAR" property="userid"/>
+		<result column="r_reg_date" jdbcType="VARCHAR" property="regDate"/>
+	</resultMap>
+
+
+	<!-- 전체목록 -->
+ 	<select id="selectlist" resultMap="board_map" parameterType="map">
+		select B.* from 
+		(
+		select @ROWNUM:=@ROWNUM + 1 as rr, A.* 
+		from
+		(select * from board order by board_seq desc)A, (SELECT @ROWNUM :=0)R
+		)
+		B where rr between #{startSeq} and #{endSeq} 
+	</select> 
+	
+	<select id="searchlist" parameterType="map" resultMap="board_map">
+		select B.* from 
+		(
+		select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from board where ${column} like concat('%',#{key},'%') order by board_seq desc)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{startSeq} and #{endSeq}
+	</select>
+	
+	<select id="searchcount" parameterType="map" resultType="int">
+		select count(*) as board_seq
+		from board
+		where ${column}=#{key}
+	</select>	
+	
+	<select id="listcount" resultType="int">
+		select count(1) as board_seq
+		from board
+	</select>
+	
+	<select id="replyselect" parameterType="boardreplyVO" resultMap="board_reply_map">
+		select reg_date as r_reg_date, reply from board_reply where board_reply_seq=#{rseq};
+	</select>
+	
+<!-- 	<select id="boardselect" parameterType="boardVO" resultMap="board_map">
+		select * from board where board_seq=#{bseq}
+	</select>   -->
+	 
+	<select id="boardselect" parameterType="boardVO" resultMap="board_map">
+		select b.board_seq, b.title, b.reg_date, b.users_id, b.contents
+		,b.origfname ,b.sysfname 
+		,r.reply as r_reply, r.reg_date as r_reg_date, r.users_id as r_userid
+		,r.board_reply_seq 
+		from board b left outer join board_reply r
+		on b.board_seq=r.board_seq where b.board_seq=#{bseq}	
+	</select>
+	
+	<!-- 게시글 입력 -->
+	<insert id="insert" >
+		insert into board(title,users_id,contents,origfname,sysfname, reg_date)
+		values(#{title},#{userid},#{contents},#{origFname},#{sysFname},now())
+	</insert>
+	
+	<!--조회수 -->
+	<insert id="hitsupdate" >
+		update board set hits=hits+1
+		 where board_seq=#{bseq}
+	</insert>	
+
+	<!-- 댓글 입력 -->
+ 	<insert id="replyinsert" >
+		insert into board_reply(board_seq,reply,users_id,reg_date)
+		values(#{bseq},#{reply},#{userid},now())
+	</insert>	 
+
+ <!-- 	<insert id="replyinsert" >
+		insert into board_reply
+		values(145,#{bseq},#{reply},#{userid},sysdate)
+	</insert>	 -->
+	
+	
+	<update id="update" parameterType="boardVO">
+		update board set title=#{title}, reg_date=now(),
+		contents=#{contents},origfname=#{origFname}, sysfname=#{sysFname} where board_seq=#{bseq}
+	</update>
+	
+	
+	<delete id="delete" parameterType="boardVO">
+		delete from board where board_seq = #{bseq}
+	</delete>	
+
+	<update id="replyupdate" parameterType="boardreplyVO">
+		update board_reply set reply=#{reply}, reg_date=now()
+		 where board_reply_seq=#{rseq}
+	</update>
+	
+	
+	<delete id="replydelete" parameterType="boardreplyVO">
+		delete from board_reply where board_reply_seq = #{rseq}
+	</delete>
+	
+	
+	
+</mapper>
+

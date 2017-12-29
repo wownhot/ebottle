@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="gradeDAO">
+
+
+
+	<insert id="insert" parameterType="gradeVO">
+		insert into grade(users_account, requestpoint, discountrate,grade_url)
+		values(#{users_account},#{requestpoint},#{discountrate},#{grade_url})		
+	</insert>
+
+	
+
+	<update id="update" parameterType="gradeVO">
+		update grade set users_account=#{users_account}, requestpoint=#{requestpoint},
+		discountrate=#{discountrate} where grade_seq=#{grade_seq}
+	</update>
+	
+	<select id="selectseq" parameterType="gradeVO" resultType="gradeVO">
+		select * 
+		from grade 
+		where grade_seq=#{grade_seq}
+	</select>
+	
+	<select id="selectaccount" parameterType="userVO" resultType="int">
+		select discountrate
+		from grade
+		where users_account=#{account}
+	</select>
+	
+	<delete id="delete" parameterType="gradeVO">
+		delete from grade where grade_seq = #{grade_seq}
+	</delete>
+	
+
+	<select id="listcount" resultType="int">
+		select count(*) as seq
+		from grade
+	</select>
+	
+	<select id="selectall" resultType="gradeVO">
+		select *
+		from grade
+		order by requestpoint desc
+	</select>
+
+	<select id="selectlist" parameterType="startend" resultType="gradeVO">
+		select B.* from 
+		(
+		select  @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from grade order by requestpoint desc)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{start} and #{end}
+	</select>
+</mapper>
+
+
+  

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pointDAO">
+	<insert id="insert" parameterType="pointVO">
+		insert into point(users_id,point_val,point_date,point_month) 
+		values(#{uid},#{pval},now(),MONTH(now()))
+	</insert>
+	<select id="select" resultType="pointVO">
+		select * 
+		from point 
+		order by point_seq
+	</select>
+	<select id="selectid" parameterType="pointVO" resultType="pointVO">
+		select * 
+		from point 
+		where users_id=#{uid} 
+		order by point_date desc
+	</select>
+	
+	<!-- 구간 포인트리스트 -->
+	<select id="selectlist" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B 
+		where rr between #{pseq} and #{pval}
+	</select>
+	
+	<!-- id로 구간 포인트 리스트 -->
+	<select id="selectlistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid}
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>
+
+	<!-- 지출내역 -->
+	<select id="spendlistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid} and 0>point_val
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>
+	
+	<!-- 적립내역 -->
+	<select id="stacklistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid} and point_val>0
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>	
+	
+	<!-- 달포인트내역 -->
+	<select id="monthlistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid} and MONTH(point_date)=#{point_month}
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>
+
+	<!-- 달포인트내역 -->
+	<select id="monthspendlistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid} and MONTH(point_date)=#{point_month} and 0>point_val
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>
+
+	<!-- 달포인트내역 -->
+	<select id="monthstacklistid" parameterType="pointVO" resultType="pointVO">
+		select B.* 
+		from (
+			select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+			from(
+				select * 
+				from point 
+				where users_id = #{uid} and MONTH(point_date)=#{point_month} and point_val>0
+				order by point_date desc)A,(SELECT @ROWNUM := 0) R
+			)B
+		where rr between #{pseq} and #{pval}
+	</select>
+
+
+			
+	<select id="getpoint" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid}
+	</select>
+
+	<select id="monthgetpoint" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and MONTH(point_date)=#{point_month}
+	</select>
+	
+	
+	<select id="getspend" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and 0>point_val
+	</select>	
+
+	<select id="monthgetspend" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and 0>point_val and MONTH(point_date)=#{point_month}
+	</select>	
+	
+	<select id="getstack" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and point_val>0
+	</select>	
+	
+	<select id="monthgetstack" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and point_val>0 and MONTH(point_date)=#{point_month}
+	</select>		
+	
+	<select id="sumpoint" parameterType="pointVO" resultType="int">
+		select ifnull(sum(point_val),0) as pval 
+		from point 
+		where users_id=#{uid} and point_val>0
+	</select>
+	
+	<select id="listcount" resultType="int">
+		select count(*) as pval 
+		from point
+	</select>
+	
+	<select id="listcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid}
+	</select>
+	
+	<select id="spendlistcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid} and 0>point_val
+	</select>	
+	
+	<select id="stacklistcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid} and point_val>0
+	</select>	
+	
+	
+
+	<select id="monthspendlistcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid} and MONTH(point_date)=#{point_month} and 0>point_val
+	</select>
+
+	<select id="monthstacklistcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid} and MONTH(point_date)=#{point_month} and point_val>0
+	</select>
+
+	<select id="monthlistcountid" parameterType="pointVO" resultType="int">
+		select count(*) as pval 
+		from point 
+		where users_id=#{uid} and MONTH(point_date)=#{point_month}
+	</select>
+	
+	<select id="monthspendid" parameterType="pointVO" resultType="pointVO">
+
+		select seq_step.seq as pseq, ifnull(sum(point_val),0) as pval
+		from 
+		seq_step 
+		left outer join 
+				(select DATE_FORMAT(point_date,'%Y-%m') ym, point_val,  MONTH(point_date) mon
+				from point
+				where users_id=#{users_id} and 0>point_val
+					and year(point_date)='2017'			
+				) as point 
+		on seq_step.seq=mon
+		group by seq_step.seq order by seq_step.seq
+	</select>
+
+	<select id="monthstackid" parameterType="pointVO" resultType="pointVO">
+
+		select seq_step.seq as pseq, ifnull(sum(point_val),0) as pval
+		from 
+		seq_step 
+		left outer join 
+				(select DATE_FORMAT(point_date,'%Y-%m') ym, point_val,  MONTH(point_date) mon
+				from point
+				where users_id=#{users_id} and point_val>0
+					and year(point_date)='2017'			
+				) as point 
+		on seq_step.seq=mon
+		group by seq_step.seq order by seq_step.seq
+	</select>
+
+</mapper>
+
+
+  

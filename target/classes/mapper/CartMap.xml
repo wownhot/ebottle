@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cartDAO">
+<insert id="insert" parameterType="cartVO">
+		insert into cart(users_seq, product_seq) values(#{users_seq},#{product_seq})
+	</insert>
+
+	<delete id="delete" parameterType="cartVO">
+		delete from cart where cart_Seq = #{cart_seq}
+	</delete>
+
+	<update id="update" parameterType="cartVO">
+		update cart set cart_quantity=#{cart_quantity} where cart_seq=#{cart_seq}
+	</update>
+
+	<select id="selectone" parameterType="cartVO" resultType="cartVO">
+		select * from cart natural join product where cart_seq=#{cart_seq}
+	</select>
+
+	<select id="selectlist" parameterType="startend" resultType="cartVO">
+		SELECT B.* FROM
+		(
+		select @ROWNUM := @ROWNUM + 1 AS rr, A.*
+		from(select * from cart natural join product where users_seq=#{users_seq}
+		order by cart_seq desc)A,(SELECT @ROWNUM := 0) R
+		)
+		B WHERE RR BETWEEN #{start} and #{end}
+	</select>
+
+	<select id="listcount" parameterType="Integer" resultType="Integer">
+		select count(*) cnt from cart where users_seq=#{users_seq}
+	</select>
+
+	<!-- 
+	<insert id="insert" parameterType="cartVO">
+		insert into cart(cart_Seq, users_Seq, product_Seq) values(cart_Seq.nextval, #{users_seq},#{product_seq})
+	</insert>
+
+=======
+   <insert id="insert" parameterType="cartVO">
+      insert into cart(users_Seq, product_Seq) values(#{users_seq},#{product_seq})
+   </insert>
+
+
+   <delete id="delete" parameterType="cartVO">
+      delete from cart where cart_Seq = #{cart_seq}
+   </delete>
+   
+   
+   <select id="selectone" parameterType="cartVO" resultType="cartVO">
+      select * from cart natural join product where cart_seq=#{cart_seq}
+   </select>
+   
+   <select id="selectlist" parameterType="startend" resultType="cartVO">
+      SELECT B.* FROM 
+      (
+      select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+      from(select * from cart natural join product where users_seq=#{users_seq} 
+      order by cart_seq desc)A,(SELECT @ROWNUM := 0) R
+      )
+      B WHERE RR BETWEEN #{start} and #{end}
+   </select>
+   
+   <select id="listcount" parameterType="Integer" resultType="Integer">
+      select count(*) cnt from cart where users_seq=#{users_seq}
+   </select>
+	 -->
+</mapper>
+
+
+  

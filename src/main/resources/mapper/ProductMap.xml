@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="productDAO">
+	<insert id="insert" parameterType="productVO">
+		insert into product(product_name,product_price,product_desc,product_url,product_stock,product_uname)
+		 values(#{pname},#{price},#{desc},#{url},#{stock},#{p_uname})
+	</insert>
+
+	<delete id="delete" parameterType="productVO">
+		delete from product where product_seq = #{pseq}
+	</delete>
+	
+	<update id="update" parameterType="productVO">
+		update product set product_name=#{pname}, product_price=#{price}, product_stock=#{stock}, product_desc=#{desc} where product_seq=#{pseq}
+	</update>
+	
+	<select id="select" resultType="productVO">
+		select * from product order by product_seq
+	</select>
+	
+	<select id="selectone" parameterType="productVO" resultType="productVO">
+		select * from product where product_seq=#{product_seq}
+	</select>
+	
+	<select id="selectlist" parameterType="map" resultType="productVO">
+		select B.* from 
+		(
+		select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from product order by product_seq)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{startSeq} and #{endSeq}
+	</select>
+	
+	<select id="listcount" resultType="int">
+		select count(*) as product_seq
+		from product
+	</select>
+	
+	<select id="searchlist" parameterType="map" resultType="productVO">
+		select B.* from 
+		(
+		select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from product where ${column} like concat('%',#{key},'%') order by product_seq)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{startSeq} and #{endSeq}
+	</select>
+	
+	<select id="searchcount" parameterType="map" resultType="int">
+		select count(*) as product_seq
+		from product
+		where ${column}=#{key}
+	</select>
+		
+</mapper>
+
+
+  

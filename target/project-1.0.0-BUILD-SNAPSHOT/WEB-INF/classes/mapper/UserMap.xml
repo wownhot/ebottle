@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="userDAO">
+
+	<!-- 전체목록  -->
+	<select id="allUser" resultType="userVO">
+		select users_seq, users_id, users_pw, users_name, users_email, users_account
+		from users
+	</select>
+	 
+	<!-- 로그인  -->
+	<select id="login" 
+	parameterType="userVO" resultType="userVO">
+		select 
+		users_seq, users_id, users_pw, users_name, users_email, users_account
+		from users
+		where users_id = #{id}
+			and users_pw = #{pw}
+	</select>
+	<!-- 회원가입 -->
+	<insert id="insert" parameterType="userVO">
+		insert into users(users_id, users_pw, users_name, users_email)
+		values(#{id},#{pw},#{name},#{email})		
+	</insert>
+	
+	<!-- 회원추가(관리자) -->
+	<insert id="insert2" parameterType="userVO">
+		insert into users(users_id, users_pw, users_name, users_email, users_account)
+		values(#{id},#{pw},#{name},#{email},#{account})		
+	</insert>
+	
+	<!-- 회원전체리스트(관리자) -->
+	<select id="select" resultType="userVO">
+		select * 
+		from users 
+		order by users_seq
+	</select>
+	
+	<!-- 회원번호로검색 -->
+	<select id="selectseq" parameterType="userVO" resultType="userVO">
+		select * 
+		from users 
+		where users_seq=#{seq}
+	</select>
+	
+	<!-- 회원아이디로검색 -->
+	<select id="selectid" parameterType="userVO" resultType="userVO">
+		select * 
+		from users 
+		where users_id=#{id}
+	</select>
+	
+	<!-- 아이디체크 -->
+	<select id="checkid" parameterType="userVO" resultType="int">
+		select count(*) as seq
+		from users
+		where users_id=#{users_id}
+	</select>
+	
+	<!-- 로그인체크 -->
+	<select id="checklog" parameterType="userVO" resultType="int">
+		select count(*) as seq
+		from users
+		where users_id=#{users_id} and users_pw=#{users_pw}
+	</select>
+	
+	<!-- 회원아이디로검색 -->
+	<update id="update" parameterType="userVO">
+		update users set users_pw=#{pw}, users_name=#{name},
+		users_email=#{email},users_account=#{account}, users_id=#{id} where users_seq=#{seq}
+	</update>
+	
+	<!-- 회원삭제(관리자) -->
+	<delete id="delete" parameterType="userVO">
+		delete from users where users_seq = #{seq}
+	</delete>
+	
+	<!-- 회원수 -->
+	<select id="listcount" resultType="int">
+		select count(*) as seq
+		from users
+	</select>
+	
+	<!-- 회원부분검색 -->
+	<select id="selectlist" parameterType="startend" resultType="userVO">
+		select B.* from 
+		(
+		select  @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from users order by users_seq)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{start} and #{end}
+	</select>
+	
+	<select id="searchlist" parameterType="map" resultType="userVO">
+		select B.* from 
+		(
+		select @ROWNUM := @ROWNUM + 1 AS rr, A.* 
+		from
+		(select * from users where ${column} like concat('%',#{key},'%') order by users_name)A,(SELECT @ROWNUM := 0) R
+		)
+		B where rr between #{startSeq} and #{endSeq}
+	</select>
+	
+	<select id="searchcount" parameterType="map" resultType="int">
+		select count(*) as seq
+		from users
+		where ${column}=#{key}
+	</select>
+	
+</mapper>
+
+
+  
